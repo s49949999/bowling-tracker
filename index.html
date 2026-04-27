@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="保齡球戰術">
-    <title>🐾 保齡球戰術紀錄器</title>
+    <meta name="apple-mobile-web-app-title" content="飛碟球戰術">
+    <title>🐾 飛碟球戰術紀錄器</title>
     <style>
         :root {
             --bg-color: #FFF0F5;
@@ -82,25 +82,45 @@
 
         .summary-text { font-size: 14px; font-weight: bold; line-height: 1.6; white-space: pre-wrap; }
 
-        /* 計分板樣式更新 */
-        .score-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+        /* 計分板樣式更新 - 解決手機擠壓問題 */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* 讓 iOS 滑動更順暢 */
+            padding-bottom: 5px;
+        }
+        .score-table { 
+            width: 100%; 
+            min-width: 480px; /* 強制最小寬度，不夠寬就左右滑動 */
+            border-collapse: collapse; 
+            font-size: 12px; 
+            table-layout: fixed; 
+        }
         .score-table th, .score-table td { padding: 5px 2px; text-align: center; border: 1px solid var(--bg-color); }
         .score-table th { background-color: var(--btn-inactive); color: var(--text-light); }
         .score-input { 
             width: 90%; background-color: var(--bg-color); border: none; border-radius: 5px; 
             text-align: center; font-weight: bold; font-size: 14px; padding: 5px 0; color: var(--text-color);
+            margin: 0 auto;
         }
         .score-input.active { border: 2px solid var(--peach-pink); background-color: #fff; }
         .total-cell { font-weight: bold; color: var(--text-color); font-size: 13px; }
         
-        /* 姓名輸入框與刪除按鈕 */
         .name-input {
-            width: 55px; background-color: transparent; border: 1px dashed var(--text-light);
+            width: 90%; max-width: 55px; background-color: transparent; border: 1px dashed var(--text-light);
             border-radius: 4px; text-align: center; font-size: 12px; font-weight: bold;
-            color: var(--text-color); padding: 4px 2px; font-family: inherit;
+            color: var(--text-color); padding: 4px 0; font-family: inherit; margin: 0 auto;
+            box-sizing: border-box;
         }
         .name-input:focus { background-color: #fff; border: 1px solid var(--mint-green); outline: none; }
         .btn-delete { background: transparent; border: none; font-size: 14px; padding: 2px; }
+
+        /* 提示動畫 */
+        .scroll-hint {
+            font-size: 11px; color: var(--text-light); text-align: right; margin-bottom: 5px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
         .calc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
         .btn-num { height: 45px; font-size: 18px; background-color: var(--btn-inactive); }
@@ -160,17 +180,22 @@
 
     <div class="panel">
         <div class="panel-title">🏆 戰況計分板 <button class="bg-mint" style="padding: 4px 10px; font-size: 11px;" onclick="addPlayer()">➕ 新增球員</button></div>
-        <div style="overflow-x: auto;">
+        <div class="scroll-hint">👉 表格可左右滑動查看</div>
+        <div class="table-responsive">
             <table class="score-table" id="scoreboard">
                 <thead>
                     <tr>
-                        <th style="min-width: 65px;">球員姓名</th>
-                        <th>G1</th><th>G2</th><th>G3</th>
-                        <th style="color:var(--text-color); background:#FFD1DC;">前三</th>
-                        <th>G4</th><th>G5</th><th>G6</th>
-                        <th style="color:var(--text-color); background:#A8E6CF;">總計</th>
-                        <th style="color:var(--text-color); background:#FFE4B5;">平均</th>
-                        <th>刪除</th>
+                        <th style="width: 65px;">球員姓名</th>
+                        <th style="width: 35px;">G1</th>
+                        <th style="width: 35px;">G2</th>
+                        <th style="width: 35px;">G3</th>
+                        <th style="width: 40px; color:var(--text-color); background:#FFD1DC;">前三</th>
+                        <th style="width: 35px;">G4</th>
+                        <th style="width: 35px;">G5</th>
+                        <th style="width: 35px;">G6</th>
+                        <th style="width: 40px; color:var(--text-color); background:#A8E6CF;">總計</th>
+                        <th style="width: 40px; color:var(--text-color); background:#FFE4B5;">平均</th>
+                        <th style="width: 35px;">刪除</th>
                     </tr>
                 </thead>
                 <tbody id="score-body">
@@ -192,6 +217,10 @@
     </div>
 
     <div class="footer-info">
+        <div style="margin-bottom: 20px;">
+            <button class="bg-baby" style="padding: 10px; font-size: 14px; width: 100%; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);" onclick="shareApp()">🔗 分享 / 複製網址給球友</button>
+        </div>
+
         <div style="margin-bottom: 10px;">
             此程式為免費程式｜作者：宜蘭球友 <b>葉鎮嘉</b>
         </div>
@@ -217,7 +246,6 @@
         };
         let currentLane = "A";
 
-        // 預設一名球員
         let players = [{ name: "球員 1", scores: [null, null, null, null, null, null] }];
         let activeInput = { pIdx: null, gIdx: null };
 
@@ -226,20 +254,16 @@
             renderScoreboard();
         }
 
-        // 修改球員姓名
         function updatePlayerName(idx, newName) {
             players[idx].name = newName;
-            // 更新計算機上方的名字顯示
             if (activeInput.pIdx === idx) {
                 document.getElementById("calc-target-name").innerText = `${newName} - G${activeInput.gIdx + 1}`;
             }
         }
 
-        // 刪除球員
         function deletePlayer(idx) {
             if (confirm("確定要刪除這位球員的紀錄嗎？")) {
                 players.splice(idx, 1);
-                // 如果刪除的是正在輸入分數的球員，就把計算機關掉
                 if (activeInput.pIdx === idx) closeCalc();
                 renderScoreboard();
             }
@@ -280,7 +304,6 @@
                 let sum3 = (s[0]||0) + (s[1]||0) + (s[2]||0);
                 let sum6 = sum3 + (s[3]||0) + (s[4]||0) + (s[5]||0);
                 
-                // 動態平均計算 (只計算有輸入分數的局數)
                 let playedCount = s.filter(v => v !== null).length;
                 let avg = playedCount > 0 ? (sum6 / playedCount).toFixed(1) : 0;
                 
@@ -355,8 +378,24 @@
             if(data.pin10!==0 || data.pin10_target_idx!==3) spLines.push("🎈 10號：" + (data.pin10!==0?formatBoardText(data.pin10):"") + (data.pin10_target_idx!==3?" ＋ "+arrows[data.pin10_target_idx]:""));
             document.getElementById("lbl-summary-spare").innerText = spLines.length?spLines.join("\n\n"):"🎈 解球用：🎯 歸零點";
         }
+
+        // 分享功能模組
+        function shareApp() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '🐾 飛碟球戰術紀錄器',
+                    text: '這是我在用的保齡球飛碟球戰術紀錄與計分板，超好用推薦給你！',
+                    url: window.location.href,
+                }).catch((error) => console.log('分享取消或失敗', error));
+            } else {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    alert('✅ 網址已成功複製！快去貼上給球友吧！');
+                }).catch(err => {
+                    alert('複製失敗，請手動複製瀏覽器網址列。');
+                });
+            }
+        }
         
-        // 網頁載入時立刻初始化 UI 與計分板
         updateUI();
         renderScoreboard();
     </script>
