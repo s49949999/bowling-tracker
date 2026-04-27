@@ -82,22 +82,35 @@
 
         .summary-text { font-size: 14px; font-weight: bold; line-height: 1.6; white-space: pre-wrap; }
 
-        /* 計分板樣式更新 - 解決手機擠壓問題 */
+        /* 計分板樣式更新 - 加入凍結首欄 (Sticky Column) */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch; /* 讓 iOS 滑動更順暢 */
+            -webkit-overflow-scrolling: touch; 
             padding-bottom: 5px;
         }
         .score-table { 
             width: 100%; 
-            min-width: 480px; /* 強制最小寬度，不夠寬就左右滑動 */
+            min-width: 480px; 
             border-collapse: collapse; 
             font-size: 12px; 
             table-layout: fixed; 
         }
         .score-table th, .score-table td { padding: 5px 2px; text-align: center; border: 1px solid var(--bg-color); }
         .score-table th { background-color: var(--btn-inactive); color: var(--text-light); }
+        
+        /* === 凍結第一欄：球員姓名 === */
+        .score-table th:first-child {
+            position: sticky; left: 0; z-index: 3;
+            background-color: var(--btn-inactive);
+            box-shadow: 2px 0 4px rgba(0,0,0,0.05); /* 滑動時的陰影層次感 */
+        }
+        .score-table td:first-child {
+            position: sticky; left: 0; z-index: 2;
+            background-color: var(--panel-bg); /* 與面板背景同色 */
+            box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+        }
+
         .score-input { 
             width: 90%; background-color: var(--bg-color); border: none; border-radius: 5px; 
             text-align: center; font-weight: bold; font-size: 14px; padding: 5px 0; color: var(--text-color);
@@ -115,11 +128,7 @@
         .name-input:focus { background-color: #fff; border: 1px solid var(--mint-green); outline: none; }
         .btn-delete { background: transparent; border: none; font-size: 14px; padding: 2px; }
 
-        /* 提示動畫 */
-        .scroll-hint {
-            font-size: 11px; color: var(--text-light); text-align: right; margin-bottom: 5px;
-            animation: pulse 2s infinite;
-        }
+        .scroll-hint { font-size: 11px; color: var(--text-light); text-align: right; margin-bottom: 5px; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
         .calc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
@@ -229,11 +238,13 @@
             甚至標到幾個會的話，不妨贊助我一下，吃個紅也好 🧧
         </div>
         <div style="margin-bottom: 10px; line-height: 1.6;">
-            <b>中國信託 (822) 727890015737</b><br>
-            宜蘭的-鎮嘉在這邊跟你恭喜勇奪佳績 ✨
+            <b>中國信託 (822) 727890015737</b>
+            <button class="bg-mint" style="padding: 4px 10px; font-size: 11px; margin-left: 5px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onclick="copyAccount()">📋 複製帳號</button><br>
+            <br>
+            在這邊跟你恭喜勇奪佳績 ✨
         </div>
         <div style="line-height: 1.6;">
-            我的私line: <b>s49949999</b><br>
+            宜蘭鎮嘉的私line: <b>s49949999</b><br>
             若有球友想要許願程式要新增的內容可以跟我說
         </div>
     </div>
@@ -379,12 +390,12 @@
             document.getElementById("lbl-summary-spare").innerText = spLines.length?spLines.join("\n\n"):"🎈 解球用：🎯 歸零點";
         }
 
-        // 分享功能模組
+        // 分享功能
         function shareApp() {
             if (navigator.share) {
                 navigator.share({
                     title: '🐾 保齡球戰術紀錄器',
-                    text: '這是我在用的保齡球球戰術紀錄與計分板，超好用推薦給你！',
+                    text: '這是我在用的保齡球戰術紀錄與計分板，超好用推薦給你！',
                     url: window.location.href,
                 }).catch((error) => console.log('分享取消或失敗', error));
             } else {
@@ -394,6 +405,38 @@
                     alert('複製失敗，請手動複製瀏覽器網址列。');
                 });
             }
+        }
+        
+        // 一鍵複製帳號功能
+        function copyAccount() {
+            const accNum = "727890015737";
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(accNum).then(() => {
+                    alert('✅ 帳號已成功複製：' + accNum + '\\n非常感謝您的贊助支持，祝您標會順利！🧧');
+                }).catch(err => {
+                    fallbackCopyTextToClipboard(accNum);
+                });
+            } else {
+                fallbackCopyTextToClipboard(accNum);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            let textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('✅ 帳號已成功複製：' + text + '\\n非常感謝您的贊助支持，祝您標會順利！🧧');
+            } catch (err) {
+                alert('複製失敗，請手動複製帳號：' + text);
+            }
+            document.body.removeChild(textArea);
         }
         
         updateUI();
