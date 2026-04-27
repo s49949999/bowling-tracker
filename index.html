@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="飛碟球戰術">
+    <title>🐾 飛碟球戰術紀錄器</title>
+    <style>
+        /* 馬卡龍可愛配色方案 */
+        :root {
+            --bg-color: #FFF0F5;
+            --panel-bg: #FFFFFF;
+            --text-color: #5C4033;
+            --text-light: #8B7355;
+            --btn-inactive: #F5F5F5;
+            --mint-green: #A8E6CF;
+            --peach-pink: #FFD1DC;
+            --baby-blue: #B0E0E6;
+            --lavender: #E6E6FA;
+            --lemon: #FFFACD;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+            margin: 0;
+            padding: 15px;
+            /* 讓使用者點擊時不會有藍色反白框 */
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        /* 圓角面板設定 */
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .panel-title {
+            color: var(--text-light);
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        /* 按鈕通用設定 */
+        button {
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-weight: bold;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: transform 0.1s;
+            touch-action: manipulation; /* 消除手機點擊的 300ms 延遲 */
+        }
+        button:active {
+            transform: scale(0.95); /* 按下去會有縮放回饋 */
+        }
+
+        /* 顏色分類 */
+        .bg-inactive { background-color: var(--btn-inactive); }
+        .bg-mint { background-color: var(--mint-green); }
+        .bg-peach { background-color: var(--peach-pink); }
+        .bg-baby { background-color: var(--baby-blue); }
+        .bg-lavender { background-color: var(--lavender); }
+        .bg-lemon { background-color: var(--lemon); }
+
+        /* 排版小工具 */
+        .flex-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .flex-center { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        
+        .lbl-title { font-size: 18px; font-weight: bold; }
+        .lbl-val { font-size: 18px; font-weight: bold; text-align: center; width: 80px; }
+        .lbl-name { font-size: 14px; font-weight: bold; width: 70px; }
+
+        .btn-adjust { padding: 8px 12px; font-size: 14px; width: 75px; }
+        .btn-sm { width: 35px; height: 35px; border-radius: 10px; font-size: 16px; }
+        .btn-big { flex: 1; height: 60px; font-size: 24px; border-radius: 20px; margin: 0 5px; }
+
+        /* 底部結論區 */
+        #summary-box { text-align: left; }
+        .summary-title { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+        .summary-text { font-size: 15px; font-weight: bold; line-height: 1.6; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+
+    <div class="panel flex-row">
+        <div class="flex-center">
+            <span class="lbl-name" style="width: auto;">左道:</span>
+            <button class="btn-sm bg-inactive" onclick="quickChange('A', -1)">－</button>
+            <span id="lbl-lane-a-val" class="lbl-title" style="width: 25px; text-align: center;">15</span>
+            <button class="btn-sm bg-inactive" onclick="quickChange('A', 1)">＋</button>
+        </div>
+        <div class="flex-center">
+            <span class="lbl-name" style="width: auto;">右道:</span>
+            <button class="btn-sm bg-inactive" onclick="quickChange('B', -1)">－</button>
+            <span id="lbl-lane-b-val" class="lbl-title" style="width: 25px; text-align: center;">16</span>
+            <button class="btn-sm bg-inactive" onclick="quickChange('B', 1)">＋</button>
+        </div>
+        <button class="bg-mint" style="padding: 8px 15px;" onclick="updateUI()">✨ 重整</button>
+    </div>
+
+    <div class="flex-row">
+        <button id="btn-lane-a" class="btn-big bg-mint" onclick="switchLane('A')">15 道</button>
+        <button id="btn-lane-b" class="btn-big bg-inactive" onclick="switchLane('B')">16 道</button>
+    </div>
+    <div style="text-align: center; margin: 15px 0;">
+        <button class="bg-lavender" style="width: 80%; padding: 12px; font-size: 16px;" onclick="resetCurrentLane()">🐾 一鍵回到歸零點</button>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">🎳 第一球全套設定</div>
+        
+        <div class="flex-row">
+            <span class="lbl-name">左右微調:</span>
+            <button class="btn-adjust bg-peach" onclick="adjust('stand', -0.5)">◀ 左移</button>
+            <span id="lbl-stand-val" class="lbl-val">歸零點</span>
+            <button class="btn-adjust bg-baby" onclick="adjust('stand', 0.5)">右移 ▶</button>
+        </div>
+
+        <div class="flex-row">
+            <span class="lbl-name">前後距離:</span>
+            <button class="btn-adjust bg-peach" onclick="adjust('approach', -0.5)">◀ 退後</button>
+            <span id="lbl-app-val" class="lbl-val" style="font-size: 15px;">歸零點</span>
+            <button class="btn-adjust bg-baby" onclick="adjust('approach', 0.5)">往前 ▶</button>
+        </div>
+
+        <div class="flex-row">
+            <span class="lbl-name">身體面向:</span>
+            <button class="btn-adjust bg-peach" onclick="adjust('body_idx', -1)">◀ 往左</button>
+            <span id="lbl-body-val" class="lbl-val">中箭</span>
+            <button class="btn-adjust bg-baby" onclick="adjust('body_idx', 1)">往右 ▶</button>
+        </div>
+
+        <div class="flex-row">
+            <span class="lbl-name">眼睛瞄點:</span>
+            <button class="btn-adjust bg-peach" onclick="adjust('target_idx', -1)">◀ 往左</button>
+            <span id="lbl-target-val" class="lbl-val">中箭</span>
+            <button class="btn-adjust bg-baby" onclick="adjust('target_idx', 1)">往右 ▶</button>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">🎯 解球微調</div>
+        
+        <div class="flex-row">
+            <span class="lbl-name">7號腳步:</span>
+            <button class="btn-adjust bg-peach" onclick="adjust('pin7', -0.5)">◀ 左移</button>
+            <span id="lbl-pin7-val" class="lbl-val">歸零點</span>
+            <button class="btn-adjust bg-baby" onclick="adjust('pin7', 0.5)">右移 ▶</button>
+        </div>
+        <div class="flex-row" style="margin-bottom: 25px;">
+            <span class="lbl-name">7號眼睛:</span>
+            <button class="btn-adjust bg-peach" onclick="adjust('pin7_target_idx', -1)">◀ 往左</button>
+            <span id="lbl-pin7-target-val" class="lbl-val">中箭</span>
+            <button class="btn-adjust bg-baby" onclick="adjust('pin7_target_idx', 1)">往右 ▶</button>
+        </div>
+
+        <div class="flex-row">
+            <span class="lbl-name">10號腳步:</span>
+            <button class="btn-adjust bg-peach" onclick="adjust('pin10', -0.5)">◀ 左移</button>
+            <span id="lbl-pin10-val" class="lbl-val">歸零點</span>
+            <button class="btn-adjust bg-baby" onclick="adjust('pin10', 0.5)">右移 ▶</button>
+        </div>
+        <div class="flex-row">
+            <span class="lbl-name">10號眼睛:</span>
+            <button class="btn-adjust bg-peach" onclick="adjust('pin10_target_idx', -1)">◀ 往左</button>
+            <span id="lbl-pin10-target-val" class="lbl-val">中箭</span>
+            <button class="btn-adjust bg-baby" onclick="adjust('pin10_target_idx', 1)">往右 ▶</button>
+        </div>
+    </div>
+
+    <div class="panel bg-lemon" id="summary-box">
+        <div id="lbl-summary-title" class="summary-title">✨ 上場戰術 (15 道) ✨</div>
+        <div id="lbl-summary-strike" class="summary-text" style="margin-bottom: 20px;"></div>
+        <div id="lbl-summary-spare" class="summary-text"></div>
+    </div>
+
+    <script>
+        const arrows = ["左一箭", "左二箭", "左三箭", "中箭", "右三箭", "右二箭", "右一箭"];
+        const body_dirs = ["左一箭", "左二箭", "左三箭", "中箭", "右三箭", "右二箭", "右一箭"];
+        
+        let lanesData = {
+            "A": {name: 15, stand: 0, approach: 0, body_idx: 3, target_idx: 3, pin7: 0, pin7_target_idx: 3, pin10: 0, pin10_target_idx: 3},
+            "B": {name: 16, stand: 0, approach: 0, body_idx: 3, target_idx: 3, pin7: 0, pin7_target_idx: 3, pin10: 0, pin10_target_idx: 3}
+        };
+        let currentLane = "A";
+
+        function quickChange(key, delta) {
+            lanesData[key].name += delta;
+            updateUI();
+        }
+
+        function switchLane(key) {
+            currentLane = key;
+            if(key === "A") {
+                document.getElementById("btn-lane-a").className = "btn-big bg-mint";
+                document.getElementById("btn-lane-b").className = "btn-big bg-inactive";
+            } else {
+                document.getElementById("btn-lane-a").className = "btn-big bg-inactive";
+                document.getElementById("btn-lane-b").className = "btn-big bg-mint";
+            }
+            updateUI();
+        }
+
+        function resetCurrentLane() {
+            let name = lanesData[currentLane].name;
+            lanesData[currentLane] = {
+                name: name, stand: 0, approach: 0, body_idx: 3, target_idx: 3,
+                pin7: 0, pin7_target_idx: 3, pin10: 0, pin10_target_idx: 3
+            };
+            updateUI();
+        }
+
+        function adjust(key, delta) {
+            if(key.includes("idx")) {
+                let newIdx = lanesData[currentLane][key] + delta;
+                if(newIdx >= 0 && newIdx < arrows.length) {
+                    lanesData[currentLane][key] = newIdx;
+                }
+            } else {
+                lanesData[currentLane][key] += delta;
+            }
+            updateUI();
+        }
+
+        function formatBoardText(val) {
+            if(val === 0) return "歸零點";
+            let dir = val < 0 ? "向左" : "向右";
+            let absVal = Math.abs(val);
+            return `${dir} ${absVal} 板`;
+        }
+
+        function formatStepText(val) {
+            if(val === 0) return "歸零點";
+            let dir = val < 0 ? "向後退" : "往前站";
+            let absVal = Math.abs(val);
+            let stepStr = (absVal === 0.5) ? "半步" : (absVal === 1.0) ? "一步" : (absVal === 1.5) ? "一步半" : `${absVal}步`;
+            return `${dir}${stepStr}`;
+        }
+
+        function updateUI() {
+            let data = lanesData[currentLane];
+            
+            // 更新道次按鈕數字
+            document.getElementById("lbl-lane-a-val").innerText = lanesData["A"].name;
+            document.getElementById("lbl-lane-b-val").innerText = lanesData["B"].name;
+            document.getElementById("btn-lane-a").innerText = lanesData["A"].name + " 道";
+            document.getElementById("btn-lane-b").innerText = lanesData["B"].name + " 道";
+
+            // 更新面板數值
+            document.getElementById("lbl-stand-val").innerText = data.stand !== 0 ? data.stand : "歸零點";
+            document.getElementById("lbl-app-val").innerText = data.approach !== 0 ? formatStepText(data.approach) : "歸零點";
+            document.getElementById("lbl-body-val").innerText = data.body_idx !== 3 ? body_dirs[data.body_idx] : "中箭";
+            document.getElementById("lbl-target-val").innerText = data.target_idx !== 3 ? arrows[data.target_idx] : "中箭";
+            
+            document.getElementById("lbl-pin7-val").innerText = data.pin7 !== 0 ? data.pin7 : "歸零點";
+            document.getElementById("lbl-pin7-target-val").innerText = data.pin7_target_idx !== 3 ? arrows[data.pin7_target_idx] : "中箭";
+            document.getElementById("lbl-pin10-val").innerText = data.pin10 !== 0 ? data.pin10 : "歸零點";
+            document.getElementById("lbl-pin10-target-val").innerText = data.pin10_target_idx !== 3 ? arrows[data.pin10_target_idx] : "中箭";
+
+            // 組合戰術結論
+            document.getElementById("lbl-summary-title").innerText = `✨ 上場戰術 (${data.name} 道) ✨`;
+
+            // 第一球
+            let strikeLines = [];
+            let strikeParts = [];
+            if(data.stand !== 0) strikeParts.push(formatBoardText(data.stand));
+            if(data.approach !== 0) strikeParts.push(formatStepText(data.approach));
+            if(strikeParts.length > 0) strikeLines.push("🎳 腳步：" + strikeParts.join(" ｜ "));
+
+            let aimParts = [];
+            if(data.body_idx !== 3) aimParts.push("面向 " + body_dirs[data.body_idx]);
+            if(data.target_idx !== 3) aimParts.push("眼睛 " + arrows[data.target_idx]);
+            if(aimParts.length > 0) strikeLines.push("👀 瞄準：" + aimParts.join(" ｜ "));
+
+            document.getElementById("lbl-summary-strike").innerText = strikeLines.length > 0 ? strikeLines.join("\n") : "🎳 第一球：🎯 歸零點";
+
+            // 解球
+            let spareLines = [];
+            let p7Parts = [];
+            if(data.pin7 !== 0) p7Parts.push(formatBoardText(data.pin7));
+            if(data.pin7_target_idx !== 3) p7Parts.push(arrows[data.pin7_target_idx]);
+            if(p7Parts.length > 0) spareLines.push("🎈 ７號解球：" + p7Parts.join(" ＋ "));
+
+            let p10Parts = [];
+            if(data.pin10 !== 0) p10Parts.push(formatBoardText(data.pin10));
+            if(data.pin10_target_idx !== 3) p10Parts.push(arrows[data.pin10_target_idx]);
+            if(p10Parts.length > 0) spareLines.push("🎈 10號解球：" + p10Parts.join(" ＋ "));
+
+            document.getElementById("lbl-summary-spare").innerText = spareLines.length > 0 ? spareLines.join("\n\n") : "🎈 解球用：🎯 歸零點";
+        }
+
+        // 初始化執行一次
+        updateUI();
+    </script>
+</body>
+</html>
