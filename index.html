@@ -82,6 +82,7 @@
 
         .summary-text { font-size: 14px; font-weight: bold; line-height: 1.6; white-space: pre-wrap; }
 
+        /* 計分板樣式更新 */
         .score-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
         .score-table th, .score-table td { padding: 5px 2px; text-align: center; border: 1px solid var(--bg-color); }
         .score-table th { background-color: var(--btn-inactive); color: var(--text-light); }
@@ -91,6 +92,15 @@
         }
         .score-input.active { border: 2px solid var(--peach-pink); background-color: #fff; }
         .total-cell { font-weight: bold; color: var(--text-color); font-size: 13px; }
+        
+        /* 姓名輸入框與刪除按鈕 */
+        .name-input {
+            width: 55px; background-color: transparent; border: 1px dashed var(--text-light);
+            border-radius: 4px; text-align: center; font-size: 12px; font-weight: bold;
+            color: var(--text-color); padding: 4px 2px; font-family: inherit;
+        }
+        .name-input:focus { background-color: #fff; border: 1px solid var(--mint-green); outline: none; }
+        .btn-delete { background: transparent; border: none; font-size: 14px; padding: 2px; }
 
         .calc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
         .btn-num { height: 45px; font-size: 18px; background-color: var(--btn-inactive); }
@@ -98,7 +108,7 @@
 
         .footer-info {
             text-align: center; font-size: 11px; color: var(--text-light); margin-top: 30px; 
-            padding: 15px; line-height: 1.8; border-top: 1px dashed var(--peach-pink);
+            padding: 15px; border-top: 1px dashed var(--peach-pink);
             background-color: rgba(255, 255, 255, 0.3); border-radius: 20px;
         }
         .footer-info b { color: var(--text-color); font-size: 12px; }
@@ -154,11 +164,13 @@
             <table class="score-table" id="scoreboard">
                 <thead>
                     <tr>
-                        <th style="width: 50px;">球員</th>
+                        <th style="min-width: 65px;">球員姓名</th>
                         <th>G1</th><th>G2</th><th>G3</th>
                         <th style="color:var(--text-color); background:#FFD1DC;">前三</th>
                         <th>G4</th><th>G5</th><th>G6</th>
                         <th style="color:var(--text-color); background:#A8E6CF;">總計</th>
+                        <th style="color:var(--text-color); background:#FFE4B5;">平均</th>
+                        <th>刪除</th>
                     </tr>
                 </thead>
                 <tbody id="score-body">
@@ -205,12 +217,32 @@
         };
         let currentLane = "A";
 
+        // 預設一名球員
         let players = [{ name: "球員 1", scores: [null, null, null, null, null, null] }];
         let activeInput = { pIdx: null, gIdx: null };
 
         function addPlayer() {
             players.push({ name: `球員 ${players.length + 1}`, scores: [null, null, null, null, null, null] });
             renderScoreboard();
+        }
+
+        // 修改球員姓名
+        function updatePlayerName(idx, newName) {
+            players[idx].name = newName;
+            // 更新計算機上方的名字顯示
+            if (activeInput.pIdx === idx) {
+                document.getElementById("calc-target-name").innerText = `${newName} - G${activeInput.gIdx + 1}`;
+            }
+        }
+
+        // 刪除球員
+        function deletePlayer(idx) {
+            if (confirm("確定要刪除這位球員的紀錄嗎？")) {
+                players.splice(idx, 1);
+                // 如果刪除的是正在輸入分數的球員，就把計算機關掉
+                if (activeInput.pIdx === idx) closeCalc();
+                renderScoreboard();
+            }
         }
 
         function openCalc(pIdx, gIdx) {
@@ -248,8 +280,14 @@
                 let sum3 = (s[0]||0) + (s[1]||0) + (s[2]||0);
                 let sum6 = sum3 + (s[3]||0) + (s[4]||0) + (s[5]||0);
                 
+                // 動態平均計算 (只計算有輸入分數的局數)
+                let playedCount = s.filter(v => v !== null).length;
+                let avg = playedCount > 0 ? (sum6 / playedCount).toFixed(1) : 0;
+                
                 html += `<tr>
-                    <td style="font-size:10px;">${p.name}</td>
+                    <td>
+                        <input type="text" class="name-input" value="${p.name}" onchange="updatePlayerName(${pIdx}, this.value)">
+                    </td>
                     ${s.map((val, gIdx) => {
                         let activeClass = (activeInput.pIdx === pIdx && activeInput.gIdx === gIdx) ? "active" : "";
                         return `<td onclick="openCalc(${pIdx}, ${gIdx})"><div class="score-input ${activeClass}">${val !== null ? val : ""}</div></td>`;
@@ -260,6 +298,8 @@
                         return `<td onclick="openCalc(${pIdx}, ${gIdx})"><div class="score-input ${activeClass}">${val !== null ? val : ""}</div></td>`;
                     }).slice(3, 6).join("")}
                     <td class="total-cell" style="background:#E6FFFA;">${sum6}</td>
+                    <td class="total-cell" style="background:#FFF8DC;">${avg}</td>
+                    <td><button class="btn-delete" onclick="deletePlayer(${pIdx})">❌</button></td>
                 </tr>`;
             });
             document.getElementById("score-body").innerHTML = html;
@@ -298,7 +338,7 @@
 
             document.getElementById("lbl-stand-val").innerText = data.stand !== 0 ? data.stand : "歸零點";
             document.getElementById("lbl-app-val").innerText = data.approach !== 0 ? formatStepText(data.approach) : "歸零點";
-            document.getElementById("lbl-body_val").innerText = data.body_idx !== 3 ? arrows[data.body_idx] : "中箭";
+            document.getElementById("lbl-body-val").innerText = data.body_idx !== 3 ? arrows[data.body_idx] : "中箭";
             document.getElementById("lbl-target-val").innerText = data.target_idx !== 3 ? arrows[data.target_idx] : "中箭";
             document.getElementById("lbl-pin7-val").innerText = data.pin7 !== 0 ? data.pin7 : "歸零點";
             document.getElementById("lbl-pin7-target-val").innerText = data.pin7_target_idx !== 3 ? arrows[data.pin7_target_idx] : "中箭";
@@ -315,6 +355,8 @@
             if(data.pin10!==0 || data.pin10_target_idx!==3) spLines.push("🎈 10號：" + (data.pin10!==0?formatBoardText(data.pin10):"") + (data.pin10_target_idx!==3?" ＋ "+arrows[data.pin10_target_idx]:""));
             document.getElementById("lbl-summary-spare").innerText = spLines.length?spLines.join("\n\n"):"🎈 解球用：🎯 歸零點";
         }
+        
+        // 網頁載入時立刻初始化 UI 與計分板
         updateUI();
         renderScoreboard();
     </script>
