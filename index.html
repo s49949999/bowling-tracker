@@ -412,7 +412,7 @@
             const accNum = "727890015737";
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(accNum).then(() => {
-                    alert('✅ 帳號已成功複製：' + accNum + '\非常感謝您的贊助支持，祝您勇奪佳績！🧧');
+                    alert('✅ 帳號已成功複製：' + accNum + '\n非常感謝您的贊助支持，祝您勇奪佳績！🧧');
                 }).catch(err => {
                     fallbackCopyTextToClipboard(accNum);
                 });
@@ -432,7 +432,7 @@
             textArea.select();
             try {
                 document.execCommand('copy');
-                alert('✅ 帳號已成功複製：' + text + '\\n非常感謝您的贊助支持，祝您每局都300分！🧧');
+                alert('✅ 帳號已成功複製：' + text + '\n非常感謝您的贊助支持，祝您每局都300分！🧧');
             } catch (err) {
                 alert('複製失敗，請手動複製帳號：' + text);
             }
