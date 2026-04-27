@@ -82,7 +82,6 @@
 
         .summary-text { font-size: 14px; font-weight: bold; line-height: 1.6; white-space: pre-wrap; }
 
-        /* 計分板樣式 */
         .score-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
         .score-table th, .score-table td { padding: 5px 2px; text-align: center; border: 1px solid var(--bg-color); }
         .score-table th { background-color: var(--btn-inactive); color: var(--text-light); }
@@ -93,7 +92,6 @@
         .score-input.active { border: 2px solid var(--peach-pink); background-color: #fff; }
         .total-cell { font-weight: bold; color: var(--text-color); font-size: 13px; }
 
-        /* 數字鍵盤樣式 */
         .calc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
         .btn-num { height: 45px; font-size: 18px; background-color: var(--btn-inactive); }
         .btn-action { height: 45px; font-size: 14px; }
@@ -103,24 +101,24 @@
             padding: 15px; line-height: 1.8; border-top: 1px dashed var(--peach-pink);
             background-color: rgba(255, 255, 255, 0.3); border-radius: 20px;
         }
+        .footer-info b { color: var(--text-color); font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <div class="panel flex-row">
+    <div class="panel flex-row" style="justify-content: space-around;">
         <div class="flex-center">
-            <span class="lbl-name" style="width: auto;">左:</span>
+            <span class="lbl-name" style="width: auto;">左道:</span>
             <button class="btn-sm bg-inactive" onclick="quickChange('A', -1)">－</button>
             <span id="lbl-lane-a-val" class="lbl-title" style="width: 25px; text-align: center;">15</span>
             <button class="btn-sm bg-inactive" onclick="quickChange('A', 1)">＋</button>
         </div>
         <div class="flex-center">
-            <span class="lbl-name" style="width: auto;">右:</span>
+            <span class="lbl-name" style="width: auto;">右道:</span>
             <button class="btn-sm bg-inactive" onclick="quickChange('B', -1)">－</button>
             <span id="lbl-lane-b-val" class="lbl-title" style="width: 25px; text-align: center;">16</span>
             <button class="btn-sm bg-inactive" onclick="quickChange('B', 1)">＋</button>
         </div>
-        <button class="bg-mint" style="padding: 8px 12px; font-size: 13px; white-space: nowrap;" onclick="updateUI()">✨ 重整</button>
     </div>
 
     <div class="flex-row">
@@ -164,7 +162,7 @@
                     </tr>
                 </thead>
                 <tbody id="score-body">
-                    </tbody>
+                </tbody>
             </table>
         </div>
 
@@ -189,9 +187,13 @@
             因為程式編寫非常耗時耗神，如果你有因為這個程式幫助到你，<br>
             甚至標到幾個會的話，不妨贊助我一下，吃個紅也好 🧧
         </div>
-        <div style="line-height: 1.6;">
+        <div style="margin-bottom: 10px; line-height: 1.6;">
             <b>中國信託 (822) 727890015737</b><br>
             宜蘭的-鎮嘉在這邊跟你恭喜勇奪佳績 ✨
+        </div>
+        <div style="line-height: 1.6;">
+            我的私line: <b>s49949999</b><br>
+            若有球友想要許願程式要新增的內容可以跟我說
         </div>
     </div>
 
@@ -203,7 +205,6 @@
         };
         let currentLane = "A";
 
-        // 計分板資料
         let players = [{ name: "球員 1", scores: [null, null, null, null, null, null] }];
         let activeInput = { pIdx: null, gIdx: null };
 
@@ -217,7 +218,6 @@
             document.getElementById("calculator").style.display = "block";
             document.getElementById("calc-target-name").innerText = `${players[pIdx].name} - G${gIdx + 1}`;
             renderScoreboard();
-            // 捲動到鍵盤位置
             document.getElementById("calculator").scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -265,7 +265,6 @@
             document.getElementById("score-body").innerHTML = html;
         }
 
-        // --- 原有邏輯 ---
         function quickChange(key, delta) { lanesData[key].name += delta; updateUI(); }
         function switchLane(key) { currentLane = key; updateUI(); }
         function resetCurrentLane() {
@@ -299,7 +298,7 @@
 
             document.getElementById("lbl-stand-val").innerText = data.stand !== 0 ? data.stand : "歸零點";
             document.getElementById("lbl-app-val").innerText = data.approach !== 0 ? formatStepText(data.approach) : "歸零點";
-            document.getElementById("lbl-body-val").innerText = data.body_idx !== 3 ? arrows[data.body_idx] : "中箭";
+            document.getElementById("lbl-body_val").innerText = data.body_idx !== 3 ? arrows[data.body_idx] : "中箭";
             document.getElementById("lbl-target-val").innerText = data.target_idx !== 3 ? arrows[data.target_idx] : "中箭";
             document.getElementById("lbl-pin7-val").innerText = data.pin7 !== 0 ? data.pin7 : "歸零點";
             document.getElementById("lbl-pin7-target-val").innerText = data.pin7_target_idx !== 3 ? arrows[data.pin7_target_idx] : "中箭";
