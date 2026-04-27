@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="保齡球戰術">
-    <title>🐾 保齡球戰術可愛機</title>
+    <meta name="apple-mobile-web-app-title" content="飛碟球戰術">
+    <title>🐾 飛碟球戰術紀錄器</title>
     <style>
         :root {
             --bg-color: #FFF0F5;
@@ -43,6 +43,9 @@
             font-size: 14px;
             font-weight: bold;
             margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         button {
@@ -73,34 +76,33 @@
         .lbl-name { font-size: 13px; font-weight: bold; width: 65px; flex-shrink: 0; white-space: nowrap; }
         .lbl-val { font-size: 15px; font-weight: bold; text-align: center; width: 60px; flex-shrink: 0; white-space: nowrap; }
 
-        .btn-adjust { 
-            padding: 10px 2px; 
-            font-size: 13px; 
-            flex: 1; 
-            max-width: 80px;
-            white-space: nowrap; 
-        }
-        
+        .btn-adjust { padding: 10px 2px; font-size: 13px; flex: 1; max-width: 80px; white-space: nowrap; }
         .btn-sm { width: 32px; height: 32px; border-radius: 10px; font-size: 16px; flex-shrink: 0; }
         .btn-big { flex: 1; height: 55px; font-size: 22px; border-radius: 20px; margin: 0 5px; }
 
-        #summary-box { text-align: left; }
-        .summary-title { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 15px; }
         .summary-text { font-size: 14px; font-weight: bold; line-height: 1.6; white-space: pre-wrap; }
 
-        /* 作者資訊樣式 */
-        .footer-info {
-            text-align: center;
-            font-size: 11px;
-            color: var(--text-light);
-            margin-top: 30px;
-            padding: 15px;
-            line-height: 1.8;
-            border-top: 1px dashed var(--peach-pink);
-            background-color: rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
+        /* 計分板樣式 */
+        .score-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+        .score-table th, .score-table td { padding: 5px 2px; text-align: center; border: 1px solid var(--bg-color); }
+        .score-table th { background-color: var(--btn-inactive); color: var(--text-light); }
+        .score-input { 
+            width: 90%; background-color: var(--bg-color); border: none; border-radius: 5px; 
+            text-align: center; font-weight: bold; font-size: 14px; padding: 5px 0; color: var(--text-color);
         }
-        .footer-info b { color: var(--text-color); font-size: 12px; }
+        .score-input.active { border: 2px solid var(--peach-pink); background-color: #fff; }
+        .total-cell { font-weight: bold; color: var(--text-color); font-size: 13px; }
+
+        /* 數字鍵盤樣式 */
+        .calc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+        .btn-num { height: 45px; font-size: 18px; background-color: var(--btn-inactive); }
+        .btn-action { height: 45px; font-size: 14px; }
+
+        .footer-info {
+            text-align: center; font-size: 11px; color: var(--text-light); margin-top: 30px; 
+            padding: 15px; line-height: 1.8; border-top: 1px dashed var(--peach-pink);
+            background-color: rgba(255, 255, 255, 0.3); border-radius: 20px;
+        }
     </style>
 </head>
 <body>
@@ -125,199 +127,189 @@
         <button id="btn-lane-a" class="btn-big bg-mint" onclick="switchLane('A')">15 道</button>
         <button id="btn-lane-b" class="btn-big bg-inactive" onclick="switchLane('B')">16 道</button>
     </div>
-    <div style="text-align: center; margin: 12px 0;">
-        <button class="bg-lavender" style="width: 85%; padding: 12px; font-size: 16px;" onclick="resetCurrentLane()">🐾 一鍵回到歸零點</button>
-    </div>
-
+    
     <div class="panel">
-        <div class="panel-title">🎳 第一球全套設定</div>
-        
-        <div class="flex-row">
-            <span class="lbl-name">微調:</span>
-            <button class="btn-adjust bg-peach" onclick="adjust('stand', -0.5)">◀ 左移</button>
-            <span id="lbl-stand-val" class="lbl-val">歸零點</span>
-            <button class="btn-adjust bg-baby" onclick="adjust('stand', 0.5)">右移 ▶</button>
-        </div>
-
-        <div class="flex-row">
-            <span class="lbl-name">距離:</span>
-            <button class="btn-adjust bg-peach" onclick="adjust('approach', -0.5)">◀ 退後</button>
-            <span id="lbl-app-val" class="lbl-val">歸零點</span>
-            <button class="btn-adjust bg-baby" onclick="adjust('approach', 0.5)">往前 ▶</button>
-        </div>
-
-        <div class="flex-row">
-            <span class="lbl-name">面向:</span>
-            <button class="btn-adjust bg-peach" onclick="adjust('body_idx', -1)">◀ 往左</button>
-            <span id="lbl-body-val" class="lbl-val">中箭</span>
-            <button class="btn-adjust bg-baby" onclick="adjust('body_idx', 1)">往右 ▶</button>
-        </div>
-
-        <div class="flex-row">
-            <span class="lbl-name">眼睛:</span>
-            <button class="btn-adjust bg-peach" onclick="adjust('target_idx', -1)">◀ 往左</button>
-            <span id="lbl-target-val" class="lbl-val">中箭</span>
-            <button class="btn-adjust bg-baby" onclick="adjust('target_idx', 1)">往右 ▶</button>
-        </div>
+        <div class="panel-title">🎳 第一球全套設定 <button class="bg-lavender" style="padding: 4px 10px; font-size: 11px;" onclick="resetCurrentLane()">一鍵歸零</button></div>
+        <div class="flex-row"><span class="lbl-name">微調:</span><button class="btn-adjust bg-peach" onclick="adjust('stand', -0.5)">◀ 左移</button><span id="lbl-stand-val" class="lbl-val">歸零點</span><button class="btn-adjust bg-baby" onclick="adjust('stand', 0.5)">右移 ▶</button></div>
+        <div class="flex-row"><span class="lbl-name">距離:</span><button class="btn-adjust bg-peach" onclick="adjust('approach', -0.5)">◀ 退後</button><span id="lbl-app-val" class="lbl-val">歸零點</span><button class="btn-adjust bg-baby" onclick="adjust('approach', 0.5)">往前 ▶</button></div>
+        <div class="flex-row"><span class="lbl-name">面向:</span><button class="btn-adjust bg-peach" onclick="adjust('body_idx', -1)">◀ 往左</button><span id="lbl-body-val" class="lbl-val">中箭</span><button class="btn-adjust bg-baby" onclick="adjust('body_idx', 1)">往右 ▶</button></div>
+        <div class="flex-row"><span class="lbl-name">眼睛:</span><button class="btn-adjust bg-peach" onclick="adjust('target_idx', -1)">◀ 往左</button><span id="lbl-target-val" class="lbl-val">中箭</span><button class="btn-adjust bg-baby" onclick="adjust('target_idx', 1)">往右 ▶</button></div>
     </div>
 
     <div class="panel">
         <div class="panel-title">🎯 解球微調</div>
-        
-        <div class="flex-row">
-            <span class="lbl-name">7號腳步:</span>
-            <button class="btn-adjust bg-peach" onclick="adjust('pin7', -0.5)">◀ 左移</button>
-            <span id="lbl-pin7-val" class="lbl-val">歸零點</span>
-            <button class="btn-adjust bg-baby" onclick="adjust('pin7', 0.5)">右移 ▶</button>
-        </div>
-        <div class="flex-row" style="margin-bottom: 20px;">
-            <span class="lbl-name">7號眼睛:</span>
-            <button class="btn-adjust bg-peach" onclick="adjust('pin7_target_idx', -1)">◀ 往左</button>
-            <span id="lbl-pin7-target-val" class="lbl-val">中箭</span>
-            <button class="btn-adjust bg-baby" onclick="adjust('pin7_target_idx', 1)">往右 ▶</button>
-        </div>
-
-        <div class="flex-row">
-            <span class="lbl-name">10號腳步:</span>
-            <button class="btn-adjust bg-peach" onclick="adjust('pin10', -0.5)">◀ 左移</button>
-            <span id="lbl-pin10-val" class="lbl-val">歸零點</span>
-            <button class="btn-adjust bg-baby" onclick="adjust('pin10', 0.5)">右移 ▶</button>
-        </div>
-        <div class="flex-row">
-            <span class="lbl-name">10號眼睛:</span>
-            <button class="btn-adjust bg-peach" onclick="adjust('pin10_target_idx', -1)">◀ 往左</button>
-            <span id="lbl-pin10-target-val" class="lbl-val">中箭</span>
-            <button class="btn-adjust bg-baby" onclick="adjust('pin10_target_idx', 1)">往右 ▶</button>
-        </div>
+        <div class="flex-row"><span class="lbl-name">7號腳步:</span><button class="btn-adjust bg-peach" onclick="adjust('pin7', -0.5)">◀ 左移</button><span id="lbl-pin7-val" class="lbl-val">歸零點</span><button class="btn-adjust bg-baby" onclick="adjust('pin7', 0.5)">右移 ▶</button></div>
+        <div class="flex-row" style="margin-bottom: 20px;"><span class="lbl-name">7號眼睛:</span><button class="btn-adjust bg-peach" onclick="adjust('pin7_target_idx', -1)">◀ 往左</button><span id="lbl-pin7-target-val" class="lbl-val">中箭</span><button class="btn-adjust bg-baby" onclick="adjust('pin7_target_idx', 1)">往右 ▶</button></div>
+        <div class="flex-row"><span class="lbl-name">10號腳步:</span><button class="btn-adjust bg-peach" onclick="adjust('pin10', -0.5)">◀ 左移</button><span id="lbl-pin10-val" class="lbl-val">歸零點</span><button class="btn-adjust bg-baby" onclick="adjust('pin10', 0.5)">右移 ▶</button></div>
+        <div class="flex-row"><span class="lbl-name">10號眼睛:</span><button class="btn-adjust bg-peach" onclick="adjust('pin10_target_idx', -1)">◀ 往左</button><span id="lbl-pin10-target-val" class="lbl-val">中箭</span><button class="btn-adjust bg-baby" onclick="adjust('pin10_target_idx', 1)">往右 ▶</button></div>
     </div>
 
     <div class="panel bg-lemon" id="summary-box">
-        <div id="lbl-summary-title" class="summary-title">✨ 上場戰術 (15 道) ✨</div>
-        <div id="lbl-summary-strike" class="summary-text" style="margin-bottom: 15px;"></div>
+        <div id="lbl-summary-title" style="text-align: center; font-weight: bold; margin-bottom: 10px;">✨ 上場戰術 ✨</div>
+        <div id="lbl-summary-strike" class="summary-text" style="margin-bottom: 10px;"></div>
         <div id="lbl-summary-spare" class="summary-text"></div>
     </div>
 
+    <div class="panel">
+        <div class="panel-title">🏆 戰況計分板 <button class="bg-mint" style="padding: 4px 10px; font-size: 11px;" onclick="addPlayer()">➕ 新增球員</button></div>
+        <div style="overflow-x: auto;">
+            <table class="score-table" id="scoreboard">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">球員</th>
+                        <th>G1</th><th>G2</th><th>G3</th>
+                        <th style="color:var(--text-color); background:#FFD1DC;">前三</th>
+                        <th>G4</th><th>G5</th><th>G6</th>
+                        <th style="color:var(--text-color); background:#A8E6CF;">總計</th>
+                    </tr>
+                </thead>
+                <tbody id="score-body">
+                    </tbody>
+            </table>
+        </div>
+
+        <div id="calculator" style="display:none; margin-top:15px; border-top: 1px dashed var(--peach-pink); padding-top:15px;">
+            <div style="font-size:12px; color:var(--text-light); margin-bottom:5px; text-align:center;">正在輸入 <b id="calc-target-name">球員1 - G1</b></div>
+            <div class="calc-grid">
+                <button class="btn-num" onclick="pressNum(1)">1</button><button class="btn-num" onclick="pressNum(2)">2</button><button class="btn-num" onclick="pressNum(3)">3</button>
+                <button class="btn-num" onclick="pressNum(4)">4</button><button class="btn-num" onclick="pressNum(5)">5</button><button class="btn-num" onclick="pressNum(6)">6</button>
+                <button class="btn-num" onclick="pressNum(7)">7</button><button class="btn-num" onclick="pressNum(8)">8</button><button class="btn-num" onclick="pressNum(9)">9</button>
+                <button class="btn-action bg-peach" onclick="pressClear()">重打</button>
+                <button class="btn-num" onclick="pressNum(0)">0</button>
+                <button class="btn-action bg-mint" onclick="closeCalc()">完成</button>
+            </div>
+        </div>
+    </div>
+
     <div class="footer-info">
-        此程式為免費程式<br>
-        作者是宜蘭球友 <b>葉鎮嘉</b> 製作<br>
-        因程式編寫非常耗時耗神<br>
-        如果有因為這個程式幫助到你，甚至標到幾個會的話，<br>
-        不妨贊助我一下，吃個紅也好 🧧<br>
-        <b>中國信託 (822) 727890015737</b><br><br>
-        宜蘭的-鎮嘉在這邊跟你恭喜勇奪佳績 ✨
+        此程式為免費程式｜作者：宜蘭球友 <b>葉鎮嘉</b><br>
+        如果您覺得有幫助，歡迎贊助吃個紅 🧧<br>
+        <b>中信 (822) 727890015737</b>
     </div>
 
     <script>
         const arrows = ["左一箭", "左二箭", "左三箭", "中箭", "右三箭", "右二箭", "右一箭"];
-        const body_dirs = ["左一箭", "左二箭", "左三箭", "中箭", "右三箭", "右二箭", "右一箭"];
-        
         let lanesData = {
             "A": {name: 15, stand: 0, approach: 0, body_idx: 3, target_idx: 3, pin7: 0, pin7_target_idx: 3, pin10: 0, pin10_target_idx: 3},
             "B": {name: 16, stand: 0, approach: 0, body_idx: 3, target_idx: 3, pin7: 0, pin7_target_idx: 3, pin10: 0, pin10_target_idx: 3}
         };
         let currentLane = "A";
 
-        function quickChange(key, delta) {
-            lanesData[key].name += delta;
-            updateUI();
+        // 計分板資料
+        let players = [{ name: "球員 1", scores: [null, null, null, null, null, null] }];
+        let activeInput = { pIdx: null, gIdx: null };
+
+        function addPlayer() {
+            players.push({ name: `球員 ${players.length + 1}`, scores: [null, null, null, null, null, null] });
+            renderScoreboard();
         }
 
-        function switchLane(key) {
-            currentLane = key;
-            if(key === "A") {
-                document.getElementById("btn-lane-a").className = "btn-big bg-mint";
-                document.getElementById("btn-lane-b").className = "btn-big bg-inactive";
-            } else {
-                document.getElementById("btn-lane-a").className = "btn-big bg-inactive";
-                document.getElementById("btn-lane-b").className = "btn-big bg-mint";
+        function openCalc(pIdx, gIdx) {
+            activeInput = { pIdx, gIdx };
+            document.getElementById("calculator").style.display = "block";
+            document.getElementById("calc-target-name").innerText = `${players[pIdx].name} - G${gIdx + 1}`;
+            renderScoreboard();
+            // 捲動到鍵盤位置
+            document.getElementById("calculator").scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function pressNum(n) {
+            let current = players[activeInput.pIdx].scores[activeInput.gIdx] || "";
+            let newVal = parseInt(current.toString() + n.toString());
+            if (newVal <= 300) {
+                players[activeInput.pIdx].scores[activeInput.gIdx] = newVal;
+                renderScoreboard();
             }
-            updateUI();
         }
 
+        function pressClear() {
+            players[activeInput.pIdx].scores[activeInput.gIdx] = null;
+            renderScoreboard();
+        }
+
+        function closeCalc() {
+            document.getElementById("calculator").style.display = "none";
+            activeInput = { pIdx: null, gIdx: null };
+            renderScoreboard();
+        }
+
+        function renderScoreboard() {
+            let html = "";
+            players.forEach((p, pIdx) => {
+                let s = p.scores;
+                let sum3 = (s[0]||0) + (s[1]||0) + (s[2]||0);
+                let sum6 = sum3 + (s[3]||0) + (s[4]||0) + (s[5]||0);
+                
+                html += `<tr>
+                    <td style="font-size:10px;">${p.name}</td>
+                    ${s.map((val, gIdx) => {
+                        let activeClass = (activeInput.pIdx === pIdx && activeInput.gIdx === gIdx) ? "active" : "";
+                        return `<td onclick="openCalc(${pIdx}, ${gIdx})"><div class="score-input ${activeClass}">${val !== null ? val : ""}</div></td>`;
+                    }).slice(0, 3).join("")}
+                    <td class="total-cell" style="background:#FFF0F5;">${sum3}</td>
+                    ${s.map((val, gIdx) => {
+                        let activeClass = (activeInput.pIdx === pIdx && activeInput.gIdx === gIdx) ? "active" : "";
+                        return `<td onclick="openCalc(${pIdx}, ${gIdx})"><div class="score-input ${activeClass}">${val !== null ? val : ""}</div></td>`;
+                    }).slice(3, 6).join("")}
+                    <td class="total-cell" style="background:#E6FFFA;">${sum6}</td>
+                </tr>`;
+            });
+            document.getElementById("score-body").innerHTML = html;
+        }
+
+        // --- 原有邏輯 ---
+        function quickChange(key, delta) { lanesData[key].name += delta; updateUI(); }
+        function switchLane(key) { currentLane = key; updateUI(); }
         function resetCurrentLane() {
             let name = lanesData[currentLane].name;
-            lanesData[currentLane] = {
-                name: name, stand: 0, approach: 0, body_idx: 3, target_idx: 3,
-                pin7: 0, pin7_target_idx: 3, pin10: 0, pin10_target_idx: 3
-            };
+            lanesData[currentLane] = { name: name, stand: 0, approach: 0, body_idx: 3, target_idx: 3, pin7: 0, pin7_target_idx: 3, pin10: 0, pin10_target_idx: 3 };
             updateUI();
         }
-
         function adjust(key, delta) {
             if(key.includes("idx")) {
                 let newIdx = lanesData[currentLane][key] + delta;
-                if(newIdx >= 0 && newIdx < arrows.length) {
-                    lanesData[currentLane][key] = newIdx;
-                }
-            } else {
-                lanesData[currentLane][key] += delta;
-            }
+                if(newIdx >= 0 && newIdx < arrows.length) lanesData[currentLane][key] = newIdx;
+            } else { lanesData[currentLane][key] += delta; }
             updateUI();
         }
-
-        function formatBoardText(val) {
-            if(val === 0) return "歸零點";
-            let dir = val < 0 ? "向左" : "向右";
-            let absVal = Math.abs(val);
-            return `${dir} ${absVal} 板`;
-        }
-
+        function formatBoardText(val) { return val === 0 ? "歸零點" : (val < 0 ? "左" : "右") + Math.abs(val) + "板"; }
         function formatStepText(val) {
             if(val === 0) return "歸零點";
-            let dir = val < 0 ? "向後退" : "往前站";
-            let absVal = Math.abs(val);
-            let stepStr = (absVal === 0.5) ? "半步" : (absVal === 1.0) ? "一步" : (absVal === 1.5) ? "一步半" : `${absVal}步`;
-            return `${dir}${stepStr}`;
+            let dir = val < 0 ? "退" : "前";
+            let abs = Math.abs(val);
+            let s = abs === 0.5 ? "半步" : abs === 1.0 ? "一步" : abs === 1.5 ? "一步半" : abs+"步";
+            return dir + s;
         }
-
         function updateUI() {
             let data = lanesData[currentLane];
-            
             document.getElementById("lbl-lane-a-val").innerText = lanesData["A"].name;
             document.getElementById("lbl-lane-b-val").innerText = lanesData["B"].name;
             document.getElementById("btn-lane-a").innerText = lanesData["A"].name + " 道";
             document.getElementById("btn-lane-b").innerText = lanesData["B"].name + " 道";
+            document.getElementById("btn-lane-a").className = currentLane === "A" ? "btn-big bg-mint" : "btn-big bg-inactive";
+            document.getElementById("btn-lane-b").className = currentLane === "B" ? "btn-big bg-mint" : "btn-big bg-inactive";
 
             document.getElementById("lbl-stand-val").innerText = data.stand !== 0 ? data.stand : "歸零點";
             document.getElementById("lbl-app-val").innerText = data.approach !== 0 ? formatStepText(data.approach) : "歸零點";
-            document.getElementById("lbl-body-val").innerText = data.body_idx !== 3 ? body_dirs[data.body_idx] : "中箭";
+            document.getElementById("lbl-body-val").innerText = data.body_idx !== 3 ? arrows[data.body_idx] : "中箭";
             document.getElementById("lbl-target-val").innerText = data.target_idx !== 3 ? arrows[data.target_idx] : "中箭";
-            
             document.getElementById("lbl-pin7-val").innerText = data.pin7 !== 0 ? data.pin7 : "歸零點";
             document.getElementById("lbl-pin7-target-val").innerText = data.pin7_target_idx !== 3 ? arrows[data.pin7_target_idx] : "中箭";
             document.getElementById("lbl-pin10-val").innerText = data.pin10 !== 0 ? data.pin10 : "歸零點";
             document.getElementById("lbl-pin10-target-val").innerText = data.pin10_target_idx !== 3 ? arrows[data.pin10_target_idx] : "中箭";
 
-            document.getElementById("lbl-summary-title").innerText = `✨ 上場戰術 (${data.name} 道) ✨`;
+            let sLines = [];
+            if(data.stand!==0 || data.approach!==0) sLines.push("🎳 腳步：" + (data.stand!==0?formatBoardText(data.stand):"") + (data.approach!==0?" ｜ "+formatStepText(data.approach):""));
+            if(data.body_idx!==3 || data.target_idx!==3) sLines.push("👀 瞄準：" + (data.body_idx!==3?"面向"+arrows[data.body_idx]:"") + (data.target_idx!==3?" ｜ 眼睛"+arrows[data.target_idx]:""));
+            document.getElementById("lbl-summary-strike").innerText = sLines.length?sLines.join("\n"):"🎳 第一球：🎯 歸零點";
 
-            let strikeLines = [];
-            let strikeParts = [];
-            if(data.stand !== 0) strikeParts.push(formatBoardText(data.stand));
-            if(data.approach !== 0) strikeParts.push(formatStepText(data.approach));
-            if(strikeParts.length > 0) strikeLines.push("🎳 腳步：" + strikeParts.join(" ｜ "));
-
-            let aimParts = [];
-            if(data.body_idx !== 3) aimParts.push("面向 " + body_dirs[data.body_idx]);
-            if(data.target_idx !== 3) aimParts.push("眼睛 " + arrows[data.target_idx]);
-            if(aimParts.length > 0) strikeLines.push("👀 瞄準：" + aimParts.join(" ｜ "));
-
-            document.getElementById("lbl-summary-strike").innerText = strikeLines.length > 0 ? strikeLines.join("\n") : "🎳 第一球：🎯 歸零點";
-
-            let spareLines = [];
-            let p7Parts = [];
-            if(data.pin7 !== 0) p7Parts.push(formatBoardText(data.pin7));
-            if(data.pin7_target_idx !== 3) p7Parts.push(arrows[data.pin7_target_idx]);
-            if(p7Parts.length > 0) spareLines.push("🎈 ７號解球：" + p7Parts.join(" ＋ "));
-
-            let p10Parts = [];
-            if(data.pin10 !== 0) p10Parts.push(formatBoardText(data.pin10));
-            if(data.pin10_target_idx !== 3) p10Parts.push(arrows[data.pin10_target_idx]);
-            if(p10Parts.length > 0) spareLines.push("🎈 10號解球：" + p10Parts.join(" ＋ "));
-
-            document.getElementById("lbl-summary-spare").innerText = spareLines.length > 0 ? spareLines.join("\n\n") : "🎈 解球用：🎯 歸零點";
+            let spLines = [];
+            if(data.pin7!==0 || data.pin7_target_idx!==3) spLines.push("🎈 ７號：" + (data.pin7!==0?formatBoardText(data.pin7):"") + (data.pin7_target_idx!==3?" ＋ "+arrows[data.pin7_target_idx]:""));
+            if(data.pin10!==0 || data.pin10_target_idx!==3) spLines.push("🎈 10號：" + (data.pin10!==0?formatBoardText(data.pin10):"") + (data.pin10_target_idx!==3?" ＋ "+arrows[data.pin10_target_idx]:""));
+            document.getElementById("lbl-summary-spare").innerText = spLines.length?spLines.join("\n\n"):"🎈 解球用：🎯 歸零點";
         }
-
         updateUI();
+        renderScoreboard();
     </script>
 </body>
 </html>
