@@ -66,17 +66,13 @@
         .bg-lavender { background-color: var(--lavender); }
         .bg-lemon { background-color: var(--lemon); }
 
-        /* 排版小工具：針對手機螢幕重新調校 */
         .flex-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 4px; }
         .flex-center { display: flex; align-items: center; justify-content: center; gap: 4px; }
         
         .lbl-title { font-size: 18px; font-weight: bold; }
-        
-        /* 避免標籤與數值被壓縮 */
         .lbl-name { font-size: 13px; font-weight: bold; width: 65px; flex-shrink: 0; white-space: nowrap; }
         .lbl-val { font-size: 15px; font-weight: bold; text-align: center; width: 60px; flex-shrink: 0; white-space: nowrap; }
 
-        /* 按鈕彈性延展，絕對不換行 */
         .btn-adjust { 
             padding: 10px 2px; 
             font-size: 13px; 
@@ -91,6 +87,20 @@
         #summary-box { text-align: left; }
         .summary-title { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 15px; }
         .summary-text { font-size: 14px; font-weight: bold; line-height: 1.6; white-space: pre-wrap; }
+
+        /* 作者資訊樣式 */
+        .footer-info {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-light);
+            margin-top: 30px;
+            padding: 15px;
+            line-height: 1.8;
+            border-top: 1px dashed var(--peach-pink);
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+        }
+        .footer-info b { color: var(--text-color); font-size: 12px; }
     </style>
 </head>
 <body>
@@ -123,28 +133,28 @@
         <div class="panel-title">🎳 第一球全套設定</div>
         
         <div class="flex-row">
-            <span class="lbl-name">左右微調:</span>
+            <span class="lbl-name">微調:</span>
             <button class="btn-adjust bg-peach" onclick="adjust('stand', -0.5)">◀ 左移</button>
             <span id="lbl-stand-val" class="lbl-val">歸零點</span>
             <button class="btn-adjust bg-baby" onclick="adjust('stand', 0.5)">右移 ▶</button>
         </div>
 
         <div class="flex-row">
-            <span class="lbl-name">前後距離:</span>
+            <span class="lbl-name">距離:</span>
             <button class="btn-adjust bg-peach" onclick="adjust('approach', -0.5)">◀ 退後</button>
             <span id="lbl-app-val" class="lbl-val">歸零點</span>
             <button class="btn-adjust bg-baby" onclick="adjust('approach', 0.5)">往前 ▶</button>
         </div>
 
         <div class="flex-row">
-            <span class="lbl-name">身體面向:</span>
+            <span class="lbl-name">面向:</span>
             <button class="btn-adjust bg-peach" onclick="adjust('body_idx', -1)">◀ 往左</button>
             <span id="lbl-body-val" class="lbl-val">中箭</span>
             <button class="btn-adjust bg-baby" onclick="adjust('body_idx', 1)">往右 ▶</button>
         </div>
 
         <div class="flex-row">
-            <span class="lbl-name">眼睛瞄點:</span>
+            <span class="lbl-name">眼睛:</span>
             <button class="btn-adjust bg-peach" onclick="adjust('target_idx', -1)">◀ 往左</button>
             <span id="lbl-target-val" class="lbl-val">中箭</span>
             <button class="btn-adjust bg-baby" onclick="adjust('target_idx', 1)">往右 ▶</button>
@@ -185,6 +195,16 @@
         <div id="lbl-summary-title" class="summary-title">✨ 上場戰術 (15 道) ✨</div>
         <div id="lbl-summary-strike" class="summary-text" style="margin-bottom: 15px;"></div>
         <div id="lbl-summary-spare" class="summary-text"></div>
+    </div>
+
+    <div class="footer-info">
+        此程式為免費程式<br>
+        作者是宜蘭球友 <b>葉鎮嘉</b> 製作<br>
+        因程式編寫非常耗時及耗神<br>
+        如果你有因為這個程式幫助到你，甚至標到幾個會的話，<br>
+        不妨贊助我一下，吃個紅也好 🧧<br>
+        <b>中國信託 (822) 727890015737</b><br><br>
+        宜蘭的-鎮嘉在這邊跟你恭喜勇奪佳績 ✨
     </div>
 
     <script>
